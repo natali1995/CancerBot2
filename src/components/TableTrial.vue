@@ -1,19 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
-const headers = ref([
-  { text: 'Field', value: 'field' },
-  { text: 'Question', value: 'question' },
-  { text: 'Answer', value: 'answer' },
-]);
-
-// Table Data
-const tableData = ref([
-  { field: 'Field 1', question: 'What is Field 1?', answer: 'Answer 1' },
-  { field: 'Field 2', question: 'What is Field 2?', answer: 'Answer 2' },
-  { field: 'Field 3', question: 'What is Field 3?', answer: 'Answer 3' },
-]);
-
+import { ref } from "vue";
+import TableComponent from "@/components/TableComponent.vue";
 
 // Button Logic
 const regenerate = () => {
@@ -24,145 +11,60 @@ const savePrompts = () => {
   console.log('Save Prompts clicked');
 };
 
-const filterByField = () => {
-  // Sort table data by "field"
-  tableData.value.sort((a, b) => a.field.localeCompare(b.field));
-  console.log('Filter by Field clicked');
-};
+const filterValue = ref<string | null>(null);
 </script>
 
 <template>
   <v-card
     class="block"
-    max-height="auto"
+    min-height="1100"
+    max-height="1100"
   >
     <v-card-text>
       <!-- Buttons -->
       <div class="buttons-container mb-4">
         <v-btn
-          color="primary"
-          class="left-button"
+          class="left-button regenerate-btn"
           @click="regenerate"
         >
           Regenerate
         </v-btn>
         <v-btn
-          color="secondary"
-          class="center-button"
+          class="center-button prompts-btn"
           @click="savePrompts"
         >
-          Save Prompts
+          Save prompts in Cancer Bot
         </v-btn>
-        <v-btn
-          color="success"
+        <v-autocomplete
+          v-model="filterValue"
+          :items="['Minimum age', 'Maximum age', 'Stage', 'Treatment']"
+          label="Filter by Field"
+          clearable
           class="right-button"
-          @click="filterByField"
-        >
-          Filter by Field
-        </v-btn>
+          variant="outlined"
+        />
       </div>
 
-      <!-- Table -->
-
-      <v-data-table
-        :headers="headers"
-        :items="tableData"
-        class="custom-table"
-        hide-default-footer
-      >
-        <!-- Editable Header -->
-        <template v-slot:header="{ headers }">
-          <thead>
-          <tr>
-            <th v-for="header in headers" :key="header.value" class="custom-header">
-              <v-text-field
-                v-model="header.text"
-                dense
-                outlined
-                class="header-editor"
-                placeholder="Edit header"
-              ></v-text-field>
-            </th>
-          </tr>
-          </thead>
-        </template>
-
-        <!-- Table Body -->
-        <template v-slot:body="{ items }">
-          <tr v-for="(item, index) in items" :key="index" class="table-row">
-            <!-- Field Column -->
-            <td class="text-center">
-              <v-text-field
-                v-model="item.field"
-                dense
-                outlined
-                placeholder="Enter field"
-              ></v-text-field>
-            </td>
-
-            <!-- Question Column -->
-            <td class="text-center">
-              <v-textarea
-                v-model="item.question"
-                dense
-                outlined
-                placeholder="Enter question"
-                rows="2"
-                class="no-resize"
-              ></v-textarea>
-            </td>
-
-            <!-- Answer Column -->
-            <td class="text-center">
-              <span class="custom-text">{{ item.answer }}</span>
-            </td>
-          </tr>
-        </template>
-      </v-data-table>
-
-
-
-<!--      <v-data-table-->
-<!--        :header="headers"-->
-<!--        :items="tableData"-->
-<!--        class="custom-table"-->
-<!--        hide-default-footer-->
-<!--        disable-sort-->
-<!--      >-->
-<!--        &lt;!&ndash; Custom Rows &ndash;&gt;-->
-<!--        <template #body="{ items }">-->
-<!--          <tr-->
-<!--            v-for="(item, index) in items"-->
-<!--            :key="index"-->
-<!--            class="table-row"-->
-<!--          >-->
-<!--            &lt;!&ndash; Field Column &ndash;&gt;-->
-<!--            <td>{{ item.field }}</td>-->
-
-<!--            &lt;!&ndash; Question Column &ndash;&gt;-->
-<!--            <td>-->
-<!--              <v-textarea-->
-<!--                v-model="item.question"-->
-<!--                dense-->
-<!--                variant="outlined"-->
-<!--                placeholder="Enter your question"-->
-<!--                rows="2"-->
-<!--                no-resize-->
-<!--                class="mt-5"-->
-<!--              >-->
-<!--              </v-textarea>-->
-<!--            </td>-->
-
-<!--            &lt;!&ndash; Answer Column &ndash;&gt;-->
-<!--            <td>{{ item.answer }}</td>-->
-<!--          </tr>-->
-<!--        </template>-->
-<!--      </v-data-table>-->
+      <TableComponent :filter="filterValue" />
     </v-card-text>
   </v-card>
 </template>
 
 <style scoped>
+@font-face {
+  font-family: 'EBGaramond';
+  src: url('@/assets/fonts/EBGaramond-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PT Serif';
+  src: url('@/assets/fonts/PTSerif-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Apply styles for the table block */
 .block {
   flex: 1;
@@ -195,34 +97,25 @@ const filterByField = () => {
 }
 .right-button {
   justify-self: end; /* Align the button to the right */
+  max-width: 200px;
+  font-family: 'PT Serif', serif;
+  color: #4073ff;
 }
 
-/* Custom table styling */
-.custom-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.custom-header {
+.regenerate-btn, .prompts-btn {
+  border-radius: 10px;
+  font-family: 'PT Serif', serif;
+  text-transform: none;
   font-weight: bold;
-  text-align: center;
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-bottom: 2px solid #ccc;
 }
 
-/* Row Styling */
-.table-row {
-  border-bottom: 1px solid #ccc; /* Add a line between rows */
+.regenerate-btn {
+  background: #4073ff;
+  color: white;
 }
 
-.table-row:last-child {
-  border-bottom: none; /* Remove line under the last row */
-}
-
-/* Padding for Table Cells */
-td {
-  padding: 8px;
-  vertical-align: middle;
+.prompts-btn {
+  border: 2px solid #4073ff;
+  color: #4073ff;
 }
 </style>
